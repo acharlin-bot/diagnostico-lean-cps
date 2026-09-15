@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico Lean + CPS</title>
+<meta name="description" content="El motor de diagnóstico que clasifica cada problema del cliente en complicado o complejo, y arma solo el informe de oportunidades y la propuesta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --fondo:#0B0E14; --panel:#12161F; --panel2:#1A2030; --borde:#262D3F; --borde-suave:#1D2333;
+    --texto:#E7EAF2; --gris:#8A93A9; --gris-op:#5B6478;
+    --acento:#FF7A50; --acento-suave:#3A2318; --acento-glow:rgba(255,122,80,.18);
+    --azul:#5B8DEF; --azul-bg:#152238;
+    --ambar:#E0A83E; --ambar-bg:#2A2312;
+    --verde:#3CCB7F; --verde-bg:#0F2A1D;
+    --display:'Sora',system-ui,sans-serif; --texto-f:'Inter',-apple-system,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--texto-f);color:var(--texto);background:var(--fondo);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .w{max-width:980px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{font-family:var(--display);text-wrap:balance}
+  button,select,textarea,input{font-family:inherit}
+  ::selection{background:var(--acento);color:#1a0d06}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;padding:64px 0 46px;overflow:hidden;border-bottom:1px solid var(--borde-suave)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+      radial-gradient(600px 300px at 15% -10%, var(--acento-glow), transparent 60%),
+      radial-gradient(500px 260px at 90% 0%, rgba(91,141,239,.14), transparent 60%);
+    pointer-events:none}
+  .hero .w{position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--acento);background:var(--acento-suave);border:1px solid #4a2c1a;padding:5px 12px;border-radius:99px;text-transform:uppercase}
+  .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acento);animation:pulso 1.8s ease-in-out infinite}
+  @keyframes pulso{0%,100%{opacity:1}50%{opacity:.35}}
+  .hero h1{font-size:clamp(30px,5.4vw,46px);font-weight:800;line-height:1.12;margin:20px 0 14px;letter-spacing:-.01em}
+  .hero h1 span{color:var(--acento)}
+  .hero p.lead{color:var(--gris);font-size:17px;max-width:60ch;margin-bottom:26px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--borde);border:1px solid var(--borde);border-radius:14px;overflow:hidden}
+  @media (max-width:720px){ .stats{grid-template-columns:repeat(2,1fr)} }
+  .stat{background:var(--panel);padding:16px 18px}
+  .stat .num{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--texto);font-variant-numeric:tabular-nums}
+  .stat .lbl{font-size:11.5px;color:var(--gris);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .stat.acento .num{color:var(--acento)}
+  .stat.azul .num{color:var(--azul)}
+  .stat.ambar .num{color:var(--ambar)}
+
+  /* ===== BARRA CONTROL ===== */
+  .barra{background:var(--panel);border-bottom:1px solid var(--borde-suave);padding:16px 0;position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}
+  .barra .fila{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .campo{display:flex;flex-direction:column;gap:5px}
+  .campo label{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--gris)}
+  .campo input,.campo select{padding:9px 12px;border:1px solid var(--borde);border-radius:8px;font-size:14px;background:var(--panel2);color:var(--texto);min-width:190px}
+  .campo select{min-width:250px}
+  .campo input:focus,.campo select:focus{outline:none;border-color:var(--acento)}
+  .btn{padding:10px 16px;border-radius:9px;border:1px solid transparent;font-weight:700;font-size:13.5px;cursor:pointer;transition:transform .12s ease}
+  .btn:active{transform:scale(.97)}
+  .btn-acento{background:var(--acento);color:#1a0d06}
+  .btn-linea{background:transparent;border-color:var(--borde);color:var(--texto)}
+  .btn-fantasma{background:transparent;border-color:var(--borde-suave);color:var(--gris);font-size:12.5px;padding:9px 12px}
+  .estado-guardado{font-family:var(--mono);font-size:11.5px;color:var(--verde);align-self:center}
+  .badge-ejemplo{font-family:var(--mono);font-size:11px;color:var(--ambar);background:var(--ambar-bg);border:1px solid #4a3a12;padding:4px 10px;border-radius:99px;align-self:center}
+
+  main{padding:34px 0 70px}
+  section.bloque{margin-bottom:36px;opacity:0;transform:translateY(10px);animation:entra .5s ease forwards}
+  section.bloque:nth-of-type(1){animation-delay:.02s}
+  section.bloque:nth-of-type(2){animation-delay:.08s}
+  section.bloque:nth-of-type(3){animation-delay:.14s}
+  section.bloque:nth-of-type(4){animation-delay:.2s}
+  @keyframes entra{to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){ section.bloque{animation:none;opacity:1;transform:none} }
+
+  .rotulo-bloque{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+  .rotulo-bloque .num{font-family:var(--mono);font-size:13px;color:var(--acento);font-weight:700;border:1px solid var(--acento-suave);background:var(--acento-suave);border-radius:6px;padding:2px 8px}
+  .rotulo-bloque h2{font-size:19px;color:var(--texto);font-weight:700}
+  .rotulo-bloque .sub{font-size:13px;color:var(--gris-op)}
+
+  .vertical-info{background:var(--panel2);border:1px solid var(--borde);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--gris);margin-bottom:18px}
+  .vertical-info b{color:var(--texto)}
+
+  .cita{background:linear-gradient(135deg,var(--panel2),var(--panel));border:1px solid var(--borde);border-left:3px solid var(--acento);border-radius:12px;padding:18px 20px;font-size:15px;line-height:1.6;margin-bottom:16px;font-family:var(--display);font-weight:500}
+  .cita .fuente{display:block;margin-top:8px;color:var(--gris);font-size:12px;font-family:var(--texto-f);font-weight:400}
+
+  .pregunta{background:var(--panel);border:1px solid var(--borde-suave);border-radius:12px;padding:16px 16px 14px;margin-bottom:12px;transition:border-color .15s}
+  .pregunta:focus-within{border-color:var(--azul)}
+  .pregunta .texto{font-weight:600;font-size:14.5px;margin-bottom:8px;line-height:1.4}
+  .pregunta textarea{width:100%;min-height:56px;border:1px solid var(--borde);border-radius:8px;padding:9px 10px;font-size:14px;resize:vertical;background:var(--panel2);color:var(--texto)}
+  .pregunta textarea:focus{outline:none;border-color:var(--azul)}
+  .pregunta textarea::placeholder{color:var(--gris-op)}
+  .pregunta .fila-clasif{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .chip{font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--borde);background:var(--panel2);cursor:pointer;font-weight:600;color:var(--gris);transition:.12s}
+  .chip:hover{border-color:var(--gris)}
+  .chip.activo-complicado{background:var(--azul-bg);border-color:var(--azul);color:var(--azul)}
+  .chip.activo-complejo{background:var(--ambar-bg);border-color:var(--ambar);color:var(--ambar)}
+
+  #informe{display:none}
+  #informe.visible{display:block;animation:entra .4s ease}
+  .informe-caja{background:var(--panel);border:1px solid var(--borde);border-radius:16px;padding:28px}
+  .informe-caja h2{color:var(--texto);font-size:23px;margin-bottom:4px}
+  .informe-caja .fecha{font-family:var(--mono);font-size:12px;color:var(--gris);margin-bottom:22px}
+  .informe-caja h3{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--acento);margin:24px 0 10px;font-family:var(--mono);font-weight:600}
+  .informe-caja textarea.resumen{width:100%;min-height:84px;border:1px dashed var(--borde);border-radius:8px;padding:12px;font-size:14.5px;background:var(--panel2);color:var(--texto)}
+  .hallazgo{border-left:3px solid var(--borde);padding:9px 0 9px 14px;margin-bottom:9px;font-size:14px;background:var(--panel2);border-radius:0 8px 8px 0}
+  .hallazgo.complicado{border-color:var(--azul)}
+  .hallazgo.complejo{border-color:var(--ambar)}
+  .hallazgo .tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;font-weight:700;letter-spacing:.05em}
+  .hallazgo.complicado .tag{color:var(--azul)}
+  .hallazgo.complejo .tag{color:var(--ambar)}
+
+  .escalera{display:flex;flex-direction:column;gap:0;margin-top:8px;border-left:2px solid var(--borde);margin-left:9px}
+  .nivel{position:relative;padding:14px 0 14px 26px;border-bottom:1px solid var(--borde-suave)}
+  .nivel:last-child{border-bottom:none}
+  .nivel::before{content:"";position:absolute;left:-7px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--fondo);border:2px solid var(--borde)}
+  .nivel.recomendado::before{background:var(--verde);border-color:var(--verde);box-shadow:0 0 0 4px var(--verde-bg)}
+  .nivel .cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .nivel .titulo{font-weight:700;font-size:14.5px}
+  .nivel.recomendado .titulo{color:var(--verde)}
+  .nivel .precio{font-family:var(--mono);font-size:13px;color:var(--gris)}
+  .nivel.recomendado .precio{color:var(--verde)}
+  .nivel .desc{font-size:13.5px;color:var(--gris);margin-top:4px}
+  .tag-recomendado{display:inline-block;font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--verde);background:var(--verde-bg);border:1px solid #1c5a3a;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
+
+  footer.cierre{background:var(--panel);border-top:1px solid var(--borde-suave);padding:40px 0;text-align:center}
+  footer.cierre p{color:var(--gris);margin:8px auto 18px;max-width:32em;font-size:14px}
+  .btn-wa{display:inline-block;background:#25D366;color:#04270F;padding:12px 22px;border-radius:11px;text-decoration:none;font-weight:700;font-size:14px}
+
+  @media print{
+    .hero,.barra,section.bloque,footer,.badge-ejemplo{display:none!important}
+    #informe{display:block!important}
+    body{background:#fff;color:#111}
+    .informe-caja{border:none;padding:0;background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero"><div class="w">
+  <span class="eyebrow">Motor de diagnóstico · Lean Training</span>
+  <h1>El diagnóstico que separa lo <span>complicado</span> de lo <span>complejo</span> — antes de gastar un peso en la solución equivocada.</h1>
+  <p class="lead">La mayoría de las consultorías aplican una herramienta de manual a cualquier problema. Este motor primero clasifica: si el problema ya tiene solución conocida, se instala una herramienta Lean. Si nadie lo ha resuelto ahí antes, ninguna herramienta sirve — se necesita otra cosa. El informe y la propuesta se arman solos con lo que se conversa en la reunión.</p>
+
+  <div class="stats">
+    <div class="stat acento"><div class="num" id="stat-notas">0</div><div class="lbl">Notas registradas</div></div>
+    <div class="stat azul"><div class="num" id="stat-complicados">0</div><div class="lbl">Complicados</div></div>
+    <div class="stat ambar"><div class="num" id="stat-complejos">0</div><div class="lbl">Complejos</div></div>
+    <div class="stat"><div class="num">6</div><div class="lbl">Verticales de industria</div></div>
+  </div>
+</div></div>
+
+<div class="barra"><div class="w">
+  <div class="fila">
+    <div class="campo">
+      <label for="cliente">Cliente / empresa</label>
+      <input id="cliente" placeholder="ej: Constructora Casaa">
+    </div>
+    <div class="campo">
+      <label for="vertical">Vertical</label>
+      <select id="vertical"></select>
+    </div>
+    <button class="btn btn-linea" id="btn-cargar">Cargar</button>
+    <button class="btn btn-acento" id="btn-guardar">Guardar notas</button>
+    <button class="btn btn-linea" id="btn-informe">Generar informe →</button>
+    <span class="estado-guardado" id="estado-guardado"></span>
+    <span class="badge-ejemplo" id="badge-ejemplo">● viendo datos de ejemplo</span>
+  </div>
+</div></div>
+
+<main class="w">
+
+  <div class="vertical-info" id="vertical-info"></div>
+
+  <section class="bloque">
+    <div class="rotulo-bloque"><span class="num">01</span><h2>Apertura</h2><span class="sub">— contexto, sin tomar notas todavía en exceso</span></div>
+    <div id="bloque-apertura"></div>
+  </section>
+
+  <section class="bloque">
+    <div class="rotulo-bloque"><span class="num">02</span><h2>Diagnóstico operacional (Lean)</h2><span class="sub">— marca cada hallazgo: complicado o complejo</span></div>
+    <div id="bloque-operacional"></div>
+  </section>
+
+  <section class="bloque">
+    <div class="rotulo-bloque"><span class="num">03</span><h2>Capa estratégica (CPS · Recuenco)</h2><span class="sub">— lo que casi ningún diagnóstico Lean pregunta</span></div>
+    <div class="cita">
+      "No se puede abordar estrategia real —good strategy, que diría Rumelt— desde la consultoría estratégica."
+      <span class="fuente">Javier G. Recuenco</span>
+    </div>
+    <div id="bloque-estrategico"></div>
+  </section>
+
+  <section class="bloque">
+    <div class="rotulo-bloque"><span class="num">04</span><h2>Cierre</h2><span class="sub">— el compromiso que hay que sacar antes de irse</span></div>
+    <div id="bloque-cierre"></div>
+  </section>
+
+</main>
+
+<div class="w" id="informe">
+  <div class="informe-caja">
+    <h2 id="inf-titulo">Informe de diagnóstico</h2>
+    <div class="fecha" id="inf-fecha"></div>
+
+    <h3>Resumen ejecutivo — edítalo antes de enviarlo</h3>
+    <textarea class="resumen" id="inf-resumen"></textarea>
+
+    <h3>Lectura estratégica (CPS)</h3>
+    <p id="inf-cps" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
+
+    <h3>Hallazgos — problemas complicados <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(los resuelve una herramienta Lean conocida)</span></h3>
+    <div id="inf-complicados"></div>
+
+    <h3>Hallazgos — problemas complejos <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(nadie los ha resuelto ahí antes — va ciclo de experimentos, no una herramienta)</span></h3>
+    <div id="inf-complejos"></div>
+
+    <h3>Herramientas y programas que podemos implementar</h3>
+    <p id="inf-herramientas" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
+
+    <h3>Propuesta — la escalera (mismo método, distinta profundidad)</h3>
+    <div class="escalera" id="escalera"></div>
+    <p style="font-size:12.5px;color:var(--gris-op);margin-top:12px">Franquicia SENCE: convierte la objeción de precio en otra conversación.</p>
+
+    <h3>Prueba — a quién ya le funcionó</h3>
+    <p id="inf-prueba" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
+
+    <div style="margin-top:26px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-acento" onclick="window.print()">Imprimir / Guardar PDF</button>
+      <button class="btn btn-linea" id="btn-copiar">Copiar texto del informe</button>
+    </div>
+  </div>
+</div>
+
+<footer class="cierre"><div class="w">
+  <h3 style="color:var(--texto);font-size:18px">¿Cómo va quedando?</h3>
+  <p>Guarda las notas antes de salir de la reunión — se quedan en este navegador, por cliente.</p>
+  <a class="btn-wa" href="https://wa.me/56946790729?text=Mario%2C%20una%20duda%20del%20diagn%C3%B3stico." target="_blank" rel="noopener">Escribirle a Mario</a>
+</div></footer>
+
+<script>
+const VERTICALES = {
+  farmaceutica: { nombre:"Farmacéutica / Salud", dolor:"GMP del ISP, CENABAST vs competencia de India/China",
+    herramienta:"Sistemas pull/kanban, SMED en líneas de envasado",
+    prueba:"Socofar (distribución farmacéutica) y Laboratorios Saval — vivo — ya validaron este enfoque en farma." },
+  vitivinicola: { nombre:"Vitivinícola / Agroindustria", dolor:"Estacionalidad de vendimia, picos que rompen cualquier dotación fija",
+    herramienta:"Heijunka (nivelación de carga) + TPM",
+    prueba:"Viña Requingua, Viña Santa Rita y Delisur — implementación 5S y estándares ya ejecutada y documentada." },
+  manufactura: { nombre:"Manufactura / Metalmecánica", dolor:"Costo imposible de competir contra Asia en volumen",
+    herramienta:"SMED, lote chico, tiempo de respuesta",
+    prueba:"Dialum, Rollux, EIT y TCH — 5S y estandarización implementadas 2022-2023." },
+  mineria: { nombre:"Minería / Industria pesada", dolor:"DS 44, SERNAGEOMIN, dependencia de contratistas externos",
+    herramienta:"Estándar de trabajo + gestión visual",
+    prueba:"US$104.549 millones en cartera minera a 10 años (Cochilco, ago-2026) — 81% es reposición/expansión, se interviene con la planta andando." },
+  retail: { nombre:"Retail / Servicios de alta dotación", dolor:"Ley Karin, CEAL-SM, rotación de personal alta",
+    herramienta:"Trabajo estandarizado + Lean Leadership",
+    prueba:"Modelo Lean Leadership aplicado en operaciones de alta rotación." },
+  construccion: { nombre:"Construcción / Obras", dolor:"Plazos que se corren, cuadrillas esperando material o aprobación",
+    herramienta:"Last Planner System + gestión visual de obra (CADENCIA)",
+    prueba:"Metodología Last Planner aplicada vía CADENCIA — EDT, valor ganado y curva S por obra." }
+};
+
+const GUION = {
+  apertura: [
+    "¿Quién más de la empresa debería estar en esta conversación y no está hoy?",
+    "En una frase: ¿por qué nos recibieron ahora y no hace un año?",
+    "¿Qué intentaron antes para resolver esto — y qué pasó?"
+  ],
+  operacional: [
+    { area:"Flujo / proceso", preguntas:[
+      "Camine el proceso completo con nosotros: ¿dónde se acumula el trabajo esperando?",
+      "¿Cuál es el tiempo de ciclo real de la etapa más lenta, medido en piso, no estimado?"
+    ]},
+    { area:"Calidad", preguntas:[
+      "¿Qué porcentaje de lo que producen/entregan se reprocesa o se devuelve?",
+      "Cuando algo sale mal, ¿el problema se documenta o se resuelve y se olvida?"
+    ]},
+    { area:"Gente / organización", preguntas:[
+      "Si la persona clave de esta área se enferma mañana, ¿el proceso sigue igual?",
+      "¿Cómo se entera un operario de que lo está haciendo bien o mal — con qué frecuencia?"
+    ]},
+    { area:"Gestión visual / estándares", preguntas:[
+      "¿Existe un estándar escrito para la tarea crítica, o vive solo en la cabeza de alguien?",
+      "Parado en la planta/oficina hoy, ¿se puede saber si van bien o mal sin preguntarle a nadie?"
+    ]}
+  ],
+  estrategico: [
+    "¿Cómo se toman hoy las decisiones estratégicas grandes de la empresa — con qué información y quién las toma?",
+    "¿Han contratado consultoría estratégica clásica antes? ¿Qué entregaron y qué cambió realmente?",
+    "¿Qué tan predecible es su entorno de negocio en los próximos 12 meses? ¿Es un problema con solución conocida o un terreno nuevo?",
+    "Si parte de nuestro honorario dependiera del resultado logrado y no solo de las horas trabajadas, ¿cómo reaccionan?"
+  ],
+  cierre: [
+    "De todo lo conversado, ¿qué es lo primero que les gustaría ver resuelto?",
+    "¿Quién decide y para cuándo necesitan una propuesta formal?"
+  ]
+};
+
+const EJEMPLO = {
+  cliente: "Constructora Ficticia S.A.",
+  vertical: "construccion",
+  notas: {
+    "p_apertura_0": "Falta el jefe de terreno — solo vino administración.",
+    "p_apertura_1": "Dos obras entregadas con multa por atraso este año.",
+    "p_op_0_0": "Material llega a bodega y espera hasta 5 días antes de subir a la torre.",
+    "p_op_1_0": "No miden tiempo de ciclo por partida — solo carta Gantt inicial, nunca actualizada.",
+    "p_op_0_1": "No hay recepción en cancha, todo pasa por bodega central primero.",
+    "p_cps_2": "El próximo año depende de un proyecto público que puede caerse por presupuesto fiscal — muy incierto.",
+    "p_cps_3": "Reacción tibia — nunca les han propuesto pago variable, hay que explicarlo bien."
+  },
+  clasif: {
+    "p_op_0_0": "complejo",
+    "p_op_1_0": "complicado",
+    "p_op_0_1": "complicado",
+    "p_cps_2": "complejo"
+  }
+};
+
+let modoEjemplo = true;
+
+function claveNotas(cliente){ return "diag_lean_" + cliente.trim().toLowerCase().replace(/\s+/g,'_'); }
+function idPregunta(bloque, i, sub){ return `p_${bloque}_${sub!=null?sub+'_':''}${i}`; }
+
+function renderApertura(){
+  document.getElementById('bloque-apertura').innerHTML = GUION.apertura.map((texto,i)=>{
+    const id = idPregunta('apertura', i);
+    return `<div class="pregunta" data-id="${id}">
+      <div class="texto">${i+1}. ${texto}</div>
+      <textarea data-id="${id}" placeholder="Nota..."></textarea>
+    </div>`;
+  }).join('');
+}
+
+function renderOperacional(){
+  let html = '';
+  GUION.operacional.forEach((grupo, gi) => {
+    html += `<div style="font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--acento);margin:16px 0 8px">${grupo.area}</div>`;
+    grupo.preguntas.forEach((texto, qi) => {
+      const id = idPregunta('op', qi, gi);
+      html += `<div class="pregunta" data-id="${id}">
+        <div class="texto">${texto}</div>
+        <textarea data-id="${id}" placeholder="Nota..."></textarea>
+        <div class="fila-clasif">
+          <button type="button" class="chip" data-id="${id}" data-tipo="complicado">Complicado — herramienta conocida</button>
+          <button type="button" class="chip" data-id="${id}" data-tipo="complejo">Complejo — nadie lo ha resuelto ahí</button>
+        </div>
+      </div>`;
+    });
+  });
+  document.getElementById('bloque-operacional').innerHTML = html;
+}
+
+function renderEstrategico(){
+  document.getElementById('bloque-estrategico').innerHTML = GUION.estrategico.map((texto,i)=>{
+    const id = idPregunta('cps', i);
+    return `<div class="pregunta" data-id="${id}">
+      <div class="texto">${i+1}. ${texto}</div>
+      <textarea data-id="${id}" placeholder="Nota..."></textarea>
+      <div class="fila-clasif">
+        <button type="button" class="chip" data-id="${id}" data-tipo="complicado">Complicado</button>
+        <button type="button" class="chip" data-id="${id}" data-tipo="complejo">Complejo</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCierre(){
+  document.getElementById('bloque-cierre').innerHTML = GUION.cierre.map((texto,i)=>{
+    const id = idPregunta('cierre', i);
+    return `<div class="pregunta" data-id="${id}">
+      <div class="texto">${i+1}. ${texto}</div>
+      <textarea data-id="${id}" placeholder="Nota..."></textarea>
+    </div>`;
+  }).join('');
+}
+
+function poblarVerticales(){
+  const sel = document.getElementById('vertical');
+  sel.innerHTML = Object.entries(VERTICALES).map(([k,v]) => `<option value="${k}">${v.nombre}</option>`).join('');
+  sel.addEventListener('change', pintarVerticalInfo);
+}
+
+function pintarVerticalInfo(){
+  const v = VERTICALES[document.getElementById('vertical').value];
+  document.getElementById('vertical-info').innerHTML = `<b>${v.nombre}:</b> ${v.dolor}. Herramienta típica: ${v.herramienta}.`;
+}
+
+function estadoActual(){
+  const notas = {};
+  document.querySelectorAll('textarea[data-id]').forEach(t => { if(t.value.trim()) notas[t.dataset.id] = t.value.trim(); });
+  const clasif = {};
+  document.querySelectorAll('.chip.activo-complicado,.chip.activo-complejo').forEach(c=>{
+    clasif[c.dataset.id] = c.classList.contains('activo-complicado') ? 'complicado' : 'complejo';
+  });
+  return { notas, clasif, vertical: document.getElementById('vertical').value };
+}
+
+function actualizarStats(){
+  const { notas, clasif } = estadoActual();
+  document.getElementById('stat-notas').textContent = Object.keys(notas).length;
+  document.getElementById('stat-complicados').textContent = Object.values(clasif).filter(t=>t==='complicado').length;
+  document.getElementById('stat-complejos').textContent = Object.values(clasif).filter(t=>t==='complejo').length;
+}
+
+function aplicarEstado(data){
+  document.getElementById('vertical').value = data.vertical || 'farmaceutica';
+  pintarVerticalInfo();
+  document.querySelectorAll('textarea[data-id]').forEach(t => t.value = '');
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('activo-complicado','activo-complejo'));
+  Object.entries(data.notas || {}).forEach(([id, val]) => {
+    const ta = document.querySelector(`textarea[data-id="${id}"]`);
+    if(ta) ta.value = val;
+  });
+  Object.entries(data.clasif || {}).forEach(([id, tipo]) => {
+    const chip = document.querySelector(`.chip[data-id="${id}"][data-tipo="${tipo}"]`);
+    if(chip) marcarChip(chip);
+  });
+  actualizarStats();
+}
+
+function guardar(){
+  const cliente = document.getElementById('cliente').value.trim();
+  if(!cliente){ alert('Escribe el nombre del cliente primero.'); return; }
+  modoEjemplo = false;
+  document.getElementById('badge-ejemplo').style.display = 'none';
+  localStorage.setItem(claveNotas(cliente), JSON.stringify(estadoActual()));
+  document.getElementById('estado-guardado').textContent = 'Guardado ✓ ' + new Date().toLocaleTimeString('es-CL');
+}
+
+function cargar(){
+  const cliente = document.getElementById('cliente').value.trim();
+  if(!cliente){ return; }
+  const raw = localStorage.getItem(claveNotas(cliente));
+  if(!raw){ document.getElementById('estado-guardado').textContent = 'Sin notas guardadas para ' + cliente; return; }
+  modoEjemplo = false;
+  document.getElementById('badge-ejemplo').style.display = 'none';
+  aplicarEstado(JSON.parse(raw));
+  document.getElementById('estado-guardado').textContent = 'Cargado: ' + cliente;
+}
+
+function marcarChip(chip){
+  chip.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('activo-complicado','activo-complejo'));
+  chip.classList.add(chip.dataset.tipo === 'complicado' ? 'activo-complicado' : 'activo-complejo');
+}
+
+function iniciarChips(){
+  document.addEventListener('click', (ev) => {
+    const chip = ev.target.closest('.chip');
+    if(!chip) return;
+    const yaActivo = chip.classList.contains('activo-complicado') || chip.classList.contains('activo-complejo');
+    chip.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('activo-complicado','activo-complejo'));
+    if(!yaActivo) marcarChip(chip);
+    actualizarStats();
+  });
+  document.addEventListener('input', (ev) => {
+    if(ev.target.matches('textarea[data-id]')) actualizarStats();
+  });
+}
+
+function textoPregunta(id){
+  const todas = [
+    ...GUION.apertura.map((t,i)=>({id:idPregunta('apertura',i), texto:t})),
+    ...GUION.operacional.flatMap((g,gi)=>g.preguntas.map((t,qi)=>({id:idPregunta('op',qi,gi), texto:t}))),
+    ...GUION.estrategico.map((t,i)=>({id:idPregunta('cps',i), texto:t})),
+    ...GUION.cierre.map((t,i)=>({id:idPregunta('cierre',i), texto:t})),
+  ];
+  const f = todas.find(x => x.id === id);
+  return f ? f.texto : id;
+}
+
+const ESCALERA = [
+  { id:'n0', nivel:'0 · Diagnóstico', desc:'Clasificar problemas: complicados vs complejos. Sale con un mapa, no con una propuesta cerrada.', precio:'Sin costo — es esta reunión' },
+  { id:'n1', nivel:'1 · Formación', desc:'Máster Modelo 5.0 (7 módulos, 28h) o talleres in-company', precio:'$390.000/persona · in-company $0 vía SENCE' },
+  { id:'n2', nivel:'2 · Implementación', desc:'Instalar la herramienta que el diagnóstico indicó, en piloto', precio:'Por proyecto, financiable SENCE' },
+  { id:'n3', nivel:'3 · Acompañamiento', desc:'Cascada completa: kernel, Hoshin Kanri, Kata diaria, gestión visual', precio:'$1.490.000' },
+];
+
+function generarInforme(){
+  const cliente = document.getElementById('cliente').value.trim() || 'el cliente';
+  const v = VERTICALES[document.getElementById('vertical').value];
+  const { notas, clasif } = estadoActual();
+
+  document.getElementById('inf-titulo').textContent = 'Informe de diagnóstico — ' + cliente;
+  document.getElementById('inf-fecha').textContent = new Date().toLocaleDateString('es-CL', {day:'numeric',month:'long',year:'numeric'}) + ' · ' + v.nombre;
+
+  const complicados = Object.entries(clasif).filter(([,t])=>t==='complicado').map(([id])=>id);
+  const complejos = Object.entries(clasif).filter(([,t])=>t==='complejo').map(([id])=>id);
+
+  document.getElementById('inf-resumen').value =
+    `${cliente} presenta ${complicados.length} punto(s) con solución Lean directa y ${complejos.length} punto(s) sin una respuesta conocida todavía. ` +
+    `Dolor típico del rubro (${v.nombre}): ${v.dolor}. Recomendación de entrada: ${v.herramienta}.`;
+
+  document.getElementById('inf-cps').textContent =
+    `"No se puede abordar estrategia real desde la consultoría estratégica clásica" (Recuenco). ` +
+    (complejos.length > 0
+      ? `${cliente} mostró señales de al menos un problema complejo (sin solución conocida en su contexto) — ahí NO va una herramienta Lean suelta, va un ciclo de experimentos (Improvement Kata) acompañado, no una consultoría que entrega un informe y se va.`
+      : `Lo que se detectó en ${cliente} son problemas complicados: tienen solución conocida. Ahí sí rinde una herramienta Lean estándar, aplicada por gente que ya la instaló antes.`);
+
+  const pintaHallazgos = (contenedorId, ids, clase) => {
+    const el = document.getElementById(contenedorId);
+    if(ids.length === 0){ el.innerHTML = '<p style="color:var(--gris-op);font-size:13.5px">— nada marcado en esta categoría —</p>'; return; }
+    el.innerHTML = ids.map(id => `<div class="hallazgo ${clase}"><span class="tag">${clase}</span><br>${textoPregunta(id)}<br><strong>${notas[id] ? notas[id] : '(sin nota escrita)'}</strong></div>`).join('');
+  };
+  pintaHallazgos('inf-complicados', complicados, 'complicado');
+  pintaHallazgos('inf-complejos', complejos, 'complejo');
+
+  document.getElementById('inf-herramientas').textContent =
+    `Para ${v.nombre}: ${v.herramienta}. Programa de formación con financiamiento SENCE (costo $0 in-company). ` +
+    `Si además hay un frente de gestión de proyectos, CADENCIA (EDT, valor ganado, curva S) traduce el avance a números de gerencia.`;
+
+  document.getElementById('inf-prueba').textContent = v.prueba;
+
+  const nivelRecomendado = complejos.length > complicados.length ? 'n3' : 'n2';
+  document.getElementById('escalera').innerHTML = ESCALERA.map(n => {
+    const recomendado = n.id === 'n0' || n.id === nivelRecomendado;
+    return `<div class="nivel ${recomendado?'recomendado':''}">
+      <div class="cab"><span class="titulo">${n.nivel}${recomendado ? '<span class="tag-recomendado">recomendado</span>' : ''}</span><span class="precio">${n.precio}</span></div>
+      <div class="desc">${n.desc}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('informe').classList.add('visible');
+  document.getElementById('informe').scrollIntoView({behavior:'smooth'});
+}
+
+document.getElementById('btn-guardar').addEventListener('click', guardar);
+document.getElementById('btn-cargar').addEventListener('click', cargar);
+document.getElementById('btn-informe').addEventListener('click', () => { if(!modoEjemplo) guardar(); generarInforme(); });
+document.getElementById('btn-copiar').addEventListener('click', () => {
+  const caja = document.querySelector('.informe-caja').innerText;
+  navigator.clipboard.writeText(caja).then(()=>{
+    const b = document.getElementById('btn-copiar');
+    const orig = b.textContent; b.textContent = 'Copiado ✓';
+    setTimeout(()=>b.textContent = orig, 1500);
+  });
+});
+
+poblarVerticales();
+document.getElementById('cliente').value = EJEMPLO.cliente;
+renderApertura(); renderOperacional(); renderEstrategico(); renderCierre();
+aplicarEstado(EJEMPLO);
+iniciarChips();
+generarInforme();
+</script>
+</body>
+</html>
