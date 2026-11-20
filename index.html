@@ -129,6 +129,7 @@
     #informe{display:block!important}
     body{background:#fff;color:#111}
     .informe-caja{border:none;padding:0;background:#fff}
+    .informe-caja textarea.resumen{background:#fff;color:#111;border:0;overflow:visible;resize:none}
   }
 </style>
 </head>
@@ -228,14 +229,15 @@
     <div id="inf-e1"></div>
 
     <h3>Herramientas y programas que podemos implementar</h3>
-    <p id="inf-herramientas" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
+    <textarea class="resumen" id="inf-herramientas" aria-label="Herramientas y programas" placeholder="Ajusta las herramientas y el alcance a la evidencia y al objetivo acordado."></textarea>
 
     <h3>Opciones de trabajo — ajustar después de validar el diagnóstico</h3>
     <div class="escalera" id="escalera"></div>
     <p style="font-size:12.5px;color:var(--gris-op);margin-top:12px">Alternativas de financiamiento: revisar elegibilidad, disponibilidad y condiciones vigentes antes de incluirlas en una propuesta.</p>
 
     <h3>Referencias comerciales — validar antes de enviar</h3>
-    <p id="inf-prueba" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
+    <p style="font-size:12.5px;color:var(--gris-op);margin-bottom:8px">Completa solo con un caso autorizado y evidencia que puedas compartir.</p>
+    <textarea class="resumen" id="inf-prueba" aria-label="Referencias comerciales" placeholder="Caso, resultado verificable y fuente o autorización..."></textarea>
 
     <div style="margin-top:26px;display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-acento" onclick="window.print()">Imprimir / Guardar PDF</button>
@@ -524,6 +526,17 @@ const ESCALERA = [
   { id:'n3', nivel:'3 · Acompañamiento', desc:'Cascada completa: kernel, Hoshin Kanri, Kata diaria, gestión visual', precio:'Cotización según alcance' },
 ];
 
+function ajustarCamposInforme(){
+  document.querySelectorAll('.informe-caja textarea.resumen').forEach(campo => {
+    campo.style.height = 'auto';
+    campo.style.height = Math.max(84, campo.scrollHeight) + 'px';
+  });
+}
+
+document.querySelectorAll('.informe-caja textarea.resumen').forEach(campo => {
+  campo.addEventListener('input', ajustarCamposInforme);
+});
+
 function generarInforme(){
   const cliente = document.getElementById('cliente').value.trim() || 'el cliente';
   const v = VERTICALES[document.getElementById('vertical').value];
@@ -569,11 +582,10 @@ function generarInforme(){
     ? `<p style="color:var(--gris);font-size:13px;margin-bottom:10px">${totalE1}/10 señales clasificadas. El perfil conserva diferencias entre dimensiones y no fuerza un único cuadrante. Reevalúa si cambian las condiciones o la evidencia.</p>${porDimension}<p style="color:var(--gris-op);font-size:12px;margin-top:8px">Lectura de trabajo: “heurístico” se usa como respuesta de aprendizaje ante señales complejas; la equivalencia es una interpretación para validar, no una categoría original de Cynefin. Referencia conceptual: <a href="https://cynefin.io/wiki/Cynefin_Domains">Cynefin Domains</a>.</p>`
     : `<p style="color:var(--gris-op);font-size:13.5px">Cuestionario E1.1 pendiente; clasifica señales para comparar las tres dimensiones.</p>`;
 
-  document.getElementById('inf-herramientas').textContent =
+  document.getElementById('inf-herramientas').value =
     `Para ${v.nombre}: ${v.herramienta}. Las alternativas de financiamiento SENCE deben revisarse según elegibilidad y condiciones vigentes antes de cotizar. ` +
     `Si además hay un frente de gestión de proyectos, CADENCIA (EDT, valor ganado, curva S) traduce el avance a números de gerencia.`;
 
-  document.getElementById('inf-prueba').textContent = 'No se cargó una referencia verificable para este rubro. Agrega un caso autorizado y comprobable antes de enviar el informe.';
 
   document.getElementById('escalera').innerHTML = ESCALERA.map(n => `
     <div class="nivel">
@@ -581,6 +593,7 @@ function generarInforme(){
       <div class="desc">${n.desc}</div>
     </div>`).join('');
 
+  ajustarCamposInforme();
   document.getElementById('informe').classList.add('visible');
   document.getElementById('informe').scrollIntoView({behavior:'smooth'});
 }
@@ -589,7 +602,9 @@ document.getElementById('btn-guardar').addEventListener('click', guardar);
 document.getElementById('btn-cargar').addEventListener('click', cargar);
 document.getElementById('btn-informe').addEventListener('click', () => { if(!modoEjemplo) guardar(); generarInforme(); });
 document.getElementById('btn-copiar').addEventListener('click', () => {
-  const caja = document.querySelector('.informe-caja').innerText;
+  const copia = document.querySelector('.informe-caja').cloneNode(true);
+  copia.querySelectorAll('textarea').forEach(campo => campo.replaceWith(document.createTextNode(campo.value)));
+  const caja = copia.innerText;
   navigator.clipboard.writeText(caja).then(()=>{
     const b = document.getElementById('btn-copiar');
     const orig = b.textContent; b.textContent = 'Copiado ✓';
