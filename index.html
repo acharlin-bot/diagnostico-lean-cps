@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Diagnóstico Lean + CPS</title>
-<meta name="description" content="El motor de diagnóstico que clasifica cada problema del cliente en complicado o complejo, y arma solo el informe de oportunidades y la propuesta.">
+<meta name="description" content="El motor de diagnóstico que clasifica los hallazgos operativos en categorías de análisis y prepara un informe editable para orientar la conversación comercial.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -139,8 +139,8 @@
 
 <div class="hero"><div class="w">
   <span class="eyebrow">Motor de diagnóstico · Lean Training</span>
-  <h1>El diagnóstico que separa lo <span>complicado</span> de lo <span>complejo</span> — antes de gastar un peso en la solución equivocada.</h1>
-  <p class="lead">La mayoría de las consultorías aplican una herramienta de manual a cualquier problema. Este motor primero clasifica: si el problema ya tiene solución conocida, se instala una herramienta Lean. Si nadie lo ha resuelto ahí antes, ninguna herramienta sirve — se necesita otra cosa. El informe y la propuesta se arman solos con lo que se conversa en la reunión.</p>
+  <h1>Un diagnóstico Lean + CPS para entender el problema antes de definir la intervención.</h1>
+  <p class="lead">La conversación distingue problemas con prácticas conocidas de aquellos que requieren aprendizaje y adaptación. El registro organiza evidencias, hipótesis y próximos pasos para preparar una propuesta que luego debe validarse con el cliente.</p>
 
   <div class="stats">
     <div class="stat acento"><div class="num" id="stat-notas">0</div><div class="lbl">Notas registradas</div></div>
@@ -183,11 +183,7 @@
   </section>
 
   <section class="bloque">
-    <div class="rotulo-bloque"><span class="num">03</span><h2>Capa estratégica (CPS · Recuenco)</h2><span class="sub">— lo que casi ningún diagnóstico Lean pregunta</span></div>
-    <div class="cita">
-      "No se puede abordar estrategia real —good strategy, que diría Rumelt— desde la consultoría estratégica."
-      <span class="fuente">Javier G. Recuenco</span>
-    </div>
+    <div class="rotulo-bloque"><span class="num">03</span><h2>Lectura estratégica (CPS)</h2><span class="sub">— lo que casi ningún diagnóstico Lean pregunta</span></div>
     <div id="bloque-estrategico"></div>
   </section>
 
@@ -220,7 +216,7 @@
 
     <h3>Propuesta — la escalera (mismo método, distinta profundidad)</h3>
     <div class="escalera" id="escalera"></div>
-    <p style="font-size:12.5px;color:var(--gris-op);margin-top:12px">Franquicia SENCE: convierte la objeción de precio en otra conversación.</p>
+    <p style="font-size:12.5px;color:var(--gris-op);margin-top:12px">Alternativas de financiamiento: revisar elegibilidad, disponibilidad y condiciones vigentes antes de incluirlas en una propuesta.</p>
 
     <h3>Prueba — a quién ya le funcionó</h3>
     <p id="inf-prueba" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
@@ -470,9 +466,9 @@ function textoPregunta(id){
 
 const ESCALERA = [
   { id:'n0', nivel:'0 · Diagnóstico', desc:'Clasificar problemas: complicados vs complejos. Sale con un mapa, no con una propuesta cerrada.', precio:'Sin costo — es esta reunión' },
-  { id:'n1', nivel:'1 · Formación', desc:'Máster Modelo 5.0 (7 módulos, 28h) o talleres in-company', precio:'$390.000/persona · in-company $0 vía SENCE' },
-  { id:'n2', nivel:'2 · Implementación', desc:'Instalar la herramienta que el diagnóstico indicó, en piloto', precio:'Por proyecto, financiable SENCE' },
-  { id:'n3', nivel:'3 · Acompañamiento', desc:'Cascada completa: kernel, Hoshin Kanri, Kata diaria, gestión visual', precio:'$1.490.000' },
+  { id:'n1', nivel:'1 · Formación', desc:'Máster Modelo 5.0 (7 módulos, 28h) o talleres in-company', precio:'Cotización según formato y alcance' },
+  { id:'n2', nivel:'2 · Implementación', desc:'Instalar la herramienta que el diagnóstico indicó, en piloto', precio:'Cotización según alcance; financiamiento sujeto a elegibilidad y condiciones vigentes' },
+  { id:'n3', nivel:'3 · Acompañamiento', desc:'Cascada completa: kernel, Hoshin Kanri, Kata diaria, gestión visual', precio:'Cotización según alcance' },
 ];
 
 function generarInforme(){
@@ -491,7 +487,7 @@ function generarInforme(){
     `Dolor típico del rubro (${v.nombre}): ${v.dolor}. Recomendación de entrada: ${v.herramienta}.`;
 
   document.getElementById('inf-cps').textContent =
-    `"No se puede abordar estrategia real desde la consultoría estratégica clásica" (Recuenco). ` +
+    `La lectura CPS ayuda a contrastar la estrategia declarada con las capacidades y restricciones observadas. ` +
     (complejos.length > 0
       ? `${cliente} mostró señales de al menos un problema complejo (sin solución conocida en su contexto) — ahí NO va una herramienta Lean suelta, va un ciclo de experimentos (Improvement Kata) acompañado, no una consultoría que entrega un informe y se va.`
       : `Lo que se detectó en ${cliente} son problemas complicados: tienen solución conocida. Ahí sí rinde una herramienta Lean estándar, aplicada por gente que ya la instaló antes.`);
@@ -505,7 +501,7 @@ function generarInforme(){
   pintaHallazgos('inf-complejos', complejos, 'complejo');
 
   document.getElementById('inf-herramientas').textContent =
-    `Para ${v.nombre}: ${v.herramienta}. Programa de formación con financiamiento SENCE (costo $0 in-company). ` +
+    `Para ${v.nombre}: ${v.herramienta}. Las alternativas de financiamiento SENCE deben revisarse según elegibilidad y condiciones vigentes antes de cotizar. ` +
     `Si además hay un frente de gestión de proyectos, CADENCIA (EDT, valor ganado, curva S) traduce el avance a números de gerencia.`;
 
   document.getElementById('inf-prueba').textContent = v.prueba;
