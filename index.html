@@ -115,14 +115,10 @@
   .nivel{position:relative;padding:14px 0 14px 26px;border-bottom:1px solid var(--borde-suave)}
   .nivel:last-child{border-bottom:none}
   .nivel::before{content:"";position:absolute;left:-7px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--fondo);border:2px solid var(--borde)}
-  .nivel.recomendado::before{background:var(--verde);border-color:var(--verde);box-shadow:0 0 0 4px var(--verde-bg)}
   .nivel .cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
   .nivel .titulo{font-weight:700;font-size:14.5px}
-  .nivel.recomendado .titulo{color:var(--verde)}
   .nivel .precio{font-family:var(--mono);font-size:13px;color:var(--gris)}
-  .nivel.recomendado .precio{color:var(--verde)}
   .nivel .desc{font-size:13.5px;color:var(--gris);margin-top:4px}
-  .tag-recomendado{display:inline-block;font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--verde);background:var(--verde-bg);border:1px solid #1c5a3a;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
 
   footer.cierre{background:var(--panel);border-top:1px solid var(--borde-suave);padding:40px 0;text-align:center}
   footer.cierre p{color:var(--gris);margin:8px auto 18px;max-width:32em;font-size:14px}
@@ -179,7 +175,8 @@
   </section>
 
   <section class="bloque">
-    <div class="rotulo-bloque"><span class="num">02</span><h2>Diagnóstico operacional (Lean)</h2><span class="sub">— marca cada hallazgo: complicado o complejo</span></div>
+    <div class="rotulo-bloque"><span class="num">02</span><h2>Hallazgos operacionales (Lean)</h2><span class="sub">— registra evidencia y una hipótesis de respuesta</span></div>
+    <p class="vertical-info">Este etiquetado rápido es una hipótesis operativa. Complétalo con el Mapa E1.1: una señal aislada no demuestra causa ni define por sí sola la intervención.</p>
     <div id="bloque-operacional"></div>
   </section>
 
@@ -221,10 +218,10 @@
     <h3>Lectura estratégica (CPS)</h3>
     <p id="inf-cps" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
 
-    <h3>Hallazgos — problemas complicados <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(los resuelve una herramienta Lean conocida)</span></h3>
+    <h3>Señales etiquetadas como complicadas <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(hipótesis: la causa puede analizarse con experiencia)</span></h3>
     <div id="inf-complicados"></div>
 
-    <h3>Hallazgos — problemas complejos <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(nadie los ha resuelto ahí antes — va ciclo de experimentos, no una herramienta)</span></h3>
+    <h3>Señales etiquetadas como complejas <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(hipótesis: la respuesta depende del contexto y conviene aprender con pruebas)</span></h3>
     <div id="inf-complejos"></div>
 
     <h3>Perfil de contexto E1.1 — hipótesis a validar</h3>
@@ -233,11 +230,11 @@
     <h3>Herramientas y programas que podemos implementar</h3>
     <p id="inf-herramientas" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
 
-    <h3>Propuesta — la escalera (mismo método, distinta profundidad)</h3>
+    <h3>Opciones de trabajo — ajustar después de validar el diagnóstico</h3>
     <div class="escalera" id="escalera"></div>
     <p style="font-size:12.5px;color:var(--gris-op);margin-top:12px">Alternativas de financiamiento: revisar elegibilidad, disponibilidad y condiciones vigentes antes de incluirlas en una propuesta.</p>
 
-    <h3>Prueba — a quién ya le funcionó</h3>
+    <h3>Referencias comerciales — validar antes de enviar</h3>
     <p id="inf-prueba" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
 
     <div style="margin-top:26px;display:flex;gap:10px;flex-wrap:wrap">
@@ -257,22 +254,22 @@
 const VERTICALES = {
   farmaceutica: { nombre:"Farmacéutica / Salud", dolor:"GMP del ISP, CENABAST vs competencia de India/China",
     herramienta:"Sistemas pull/kanban, SMED en líneas de envasado",
-    prueba:"Socofar (distribución farmacéutica) y Laboratorios Saval — vivo — ya validaron este enfoque en farma." },
+    prueba:null },
   vitivinicola: { nombre:"Vitivinícola / Agroindustria", dolor:"Estacionalidad de vendimia, picos que rompen cualquier dotación fija",
     herramienta:"Heijunka (nivelación de carga) + TPM",
-    prueba:"Viña Requingua, Viña Santa Rita y Delisur — implementación 5S y estándares ya ejecutada y documentada." },
+    prueba:null },
   manufactura: { nombre:"Manufactura / Metalmecánica", dolor:"Costo imposible de competir contra Asia en volumen",
     herramienta:"SMED, lote chico, tiempo de respuesta",
-    prueba:"Dialum, Rollux, EIT y TCH — 5S y estandarización implementadas 2022-2023." },
+    prueba:null },
   mineria: { nombre:"Minería / Industria pesada", dolor:"DS 44, SERNAGEOMIN, dependencia de contratistas externos",
     herramienta:"Estándar de trabajo + gestión visual",
-    prueba:"US$104.549 millones en cartera minera a 10 años (Cochilco, ago-2026) — 81% es reposición/expansión, se interviene con la planta andando." },
+    prueba:null },
   retail: { nombre:"Retail / Servicios de alta dotación", dolor:"Ley Karin, CEAL-SM, rotación de personal alta",
     herramienta:"Trabajo estandarizado + Lean Leadership",
-    prueba:"Modelo Lean Leadership aplicado en operaciones de alta rotación." },
+    prueba:null },
   construccion: { nombre:"Construcción / Obras", dolor:"Plazos que se corren, cuadrillas esperando material o aprobación",
     herramienta:"Last Planner System + gestión visual de obra (CADENCIA)",
-    prueba:"Metodología Last Planner aplicada vía CADENCIA — EDT, valor ganado y curva S por obra." }
+    prueba:null }
 };
 
 const GUION = {
@@ -376,8 +373,8 @@ function renderOperacional(){
         <div class="texto">${texto}</div>
         <textarea data-id="${id}" placeholder="Nota..."></textarea>
         <div class="fila-clasif">
-          <button type="button" class="chip" data-id="${id}" data-tipo="complicado">Complicado — herramienta conocida</button>
-          <button type="button" class="chip" data-id="${id}" data-tipo="complejo">Complejo — nadie lo ha resuelto ahí</button>
+          <button type="button" class="chip" data-id="${id}" data-tipo="complicado">Complicado — causa analizable con experiencia</button>
+          <button type="button" class="chip" data-id="${id}" data-tipo="complejo">Complejo — respuesta contextual; aprender y ajustar</button>
         </div>
       </div>`;
     });
@@ -391,10 +388,6 @@ function renderEstrategico(){
     return `<div class="pregunta" data-id="${id}">
       <div class="texto">${i+1}. ${texto}</div>
       <textarea data-id="${id}" placeholder="Nota..."></textarea>
-      <div class="fila-clasif">
-        <button type="button" class="chip" data-id="${id}" data-tipo="complicado">Complicado</button>
-        <button type="button" class="chip" data-id="${id}" data-tipo="complejo">Complejo</button>
-      </div>
     </div>`;
   }).join('');
 }
@@ -525,7 +518,7 @@ function textoPregunta(id){
 }
 
 const ESCALERA = [
-  { id:'n0', nivel:'0 · Diagnóstico', desc:'Clasificar problemas: complicados vs complejos. Sale con un mapa, no con una propuesta cerrada.', precio:'Sin costo — es esta reunión' },
+  { id:'n0', nivel:'0 · Diagnóstico', desc:'Mapa preliminar de señales y preguntas a validar; no es una propuesta cerrada.', precio:'Conversación inicial' },
   { id:'n1', nivel:'1 · Formación', desc:'Máster Modelo 5.0 (7 módulos, 28h) o talleres in-company', precio:'Cotización según formato y alcance' },
   { id:'n2', nivel:'2 · Implementación', desc:'Instalar la herramienta que el diagnóstico indicó, en piloto', precio:'Cotización según alcance; financiamiento sujeto a elegibilidad y condiciones vigentes' },
   { id:'n3', nivel:'3 · Acompañamiento', desc:'Cascada completa: kernel, Hoshin Kanri, Kata diaria, gestión visual', precio:'Cotización según alcance' },
@@ -543,14 +536,14 @@ function generarInforme(){
   const complejos = Object.entries(clasif).filter(([,t])=>t==='complejo').map(([id])=>id);
 
   document.getElementById('inf-resumen').value =
-    `${cliente} presenta ${complicados.length} punto(s) con solución Lean directa y ${complejos.length} punto(s) sin una respuesta conocida todavía. ` +
-    `Dolor típico del rubro (${v.nombre}): ${v.dolor}. Recomendación de entrada: ${v.herramienta}.`;
+    `${cliente}: ${complicados.length} hallazgo(s) etiquetado(s) como complicado(s) y ${complejos.length} como complejo(s), según las hipótesis marcadas durante la conversación. ` +
+    `Contexto típico a contrastar en ${v.nombre}: ${v.dolor}. Posible práctica para explorar, no recomendación automática: ${v.herramienta}.`;
 
+  const lecturaTriage = complicados.length + complejos.length === 0
+    ? 'Aún no hay señales operacionales etiquetadas.'
+    : `${complicados.length} señal(es) con hipótesis de causa analizable y ${complejos.length} con hipótesis de respuesta contextual.`;
   document.getElementById('inf-cps').textContent =
-    `La lectura CPS ayuda a contrastar la estrategia declarada con las capacidades y restricciones observadas. ` +
-    (complejos.length > 0
-      ? `${cliente} mostró señales de al menos un problema complejo (sin solución conocida en su contexto) — ahí NO va una herramienta Lean suelta, va un ciclo de experimentos (Improvement Kata) acompañado, no una consultoría que entrega un informe y se va.`
-      : `Lo que se detectó en ${cliente} son problemas complicados: tienen solución conocida. Ahí sí rinde una herramienta Lean estándar, aplicada por gente que ya la instaló antes.`);
+    `La lectura CPS contrasta estrategia, capacidades, restricciones y respuesta operativa. ${lecturaTriage} Estas etiquetas orientan la siguiente pregunta; no prueban causalidad ni determinan por sí solas la solución. Si la evidencia apunta a relaciones estables, valida prácticas conocidas; si apunta a efectos dependientes del contexto, acuerda un experimento pequeño y revisable.`;
 
   const pintaHallazgos = (contenedorId, ids, clase) => {
     const el = document.getElementById(contenedorId);
@@ -580,16 +573,13 @@ function generarInforme(){
     `Para ${v.nombre}: ${v.herramienta}. Las alternativas de financiamiento SENCE deben revisarse según elegibilidad y condiciones vigentes antes de cotizar. ` +
     `Si además hay un frente de gestión de proyectos, CADENCIA (EDT, valor ganado, curva S) traduce el avance a números de gerencia.`;
 
-  document.getElementById('inf-prueba').textContent = v.prueba;
+  document.getElementById('inf-prueba').textContent = 'No se cargó una referencia verificable para este rubro. Agrega un caso autorizado y comprobable antes de enviar el informe.';
 
-  const nivelRecomendado = complejos.length > complicados.length ? 'n3' : 'n2';
-  document.getElementById('escalera').innerHTML = ESCALERA.map(n => {
-    const recomendado = n.id === 'n0' || n.id === nivelRecomendado;
-    return `<div class="nivel ${recomendado?'recomendado':''}">
-      <div class="cab"><span class="titulo">${n.nivel}${recomendado ? '<span class="tag-recomendado">recomendado</span>' : ''}</span><span class="precio">${n.precio}</span></div>
+  document.getElementById('escalera').innerHTML = ESCALERA.map(n => `
+    <div class="nivel">
+      <div class="cab"><span class="titulo">${n.nivel}</span><span class="precio">${n.precio}</span></div>
       <div class="desc">${n.desc}</div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 
   document.getElementById('informe').classList.add('visible');
   document.getElementById('informe').scrollIntoView({behavior:'smooth'});
