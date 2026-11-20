@@ -90,6 +90,7 @@
   .pregunta textarea{width:100%;min-height:56px;border:1px solid var(--borde);border-radius:8px;padding:9px 10px;font-size:14px;resize:vertical;background:var(--panel2);color:var(--texto)}
   .pregunta textarea:focus{outline:none;border-color:var(--azul)}
   .pregunta textarea::placeholder{color:var(--gris-op)}
+  .pregunta select{width:100%;border:1px solid var(--borde);border-radius:8px;padding:9px 10px;background:var(--panel2);color:var(--texto);font-size:14px}
   .pregunta .fila-clasif{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
   .chip{font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--borde);background:var(--panel2);cursor:pointer;font-weight:600;color:var(--gris);transition:.12s}
   .chip:hover{border-color:var(--gris)}
@@ -185,6 +186,21 @@
   <section class="bloque">
     <div class="rotulo-bloque"><span class="num">03</span><h2>Lectura estratégica (CPS)</h2><span class="sub">— lo que casi ningún diagnóstico Lean pregunta</span></div>
     <div id="bloque-estrategico"></div>
+    <div class="rotulo-bloque" style="margin-top:24px"><span class="num">E1.1</span><h2>Mapa de contexto</h2></div>
+    <p class="vertical-info">Registra señales por dimensión; el resultado es un perfil para conversar, no un diagnóstico automático. Si en 15 minutos no hay acuerdo sobre causa y efecto, trata la situación como heurística y diseña un experimento acotado. “Heurístico” describe aquí una forma de actuar ante lo complejo, no un sinónimo de “complejo”. <a href="https://cynefin.io/wiki/Cynefin_Domains" target="_blank" rel="noopener">Referencia conceptual Cynefin</a>.</p>
+    <details class="vertical-info"><summary>Tabla de reconciliación — interpretación de trabajo</summary>
+      <div style="overflow-x:auto;margin-top:12px"><table style="width:100%;border-collapse:collapse;min-width:620px;font-size:13px">
+        <thead><tr><th style="text-align:left;padding:8px;border-bottom:1px solid var(--borde)">Dominio / vocabulario</th><th style="text-align:left;padding:8px;border-bottom:1px solid var(--borde)">Humano</th><th style="text-align:left;padding:8px;border-bottom:1px solid var(--borde)">Tecnología</th><th style="text-align:left;padding:8px;border-bottom:1px solid var(--borde)">Método</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Claro · determinista</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Roles y desempeño repetibles</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Comportamiento estable y conocido</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Estándar probado y verificable</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Complicado · complicado</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Hace falta experiencia especializada</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Diagnóstico técnico o análisis</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Analizar, elegir y aplicar una solución</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Complejo · heurístico*</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Coordinación y adaptación al contexto</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Interacciones con resultados difíciles de anticipar</td><td style="padding:8px;border-bottom:1px solid var(--borde-suave)">Experimentos acotados, aprender y ajustar</td></tr>
+          <tr><td style="padding:8px">Caótico · caótico</td><td style="padding:8px">Proteger personas y coordinar respuesta inmediata</td><td style="padding:8px">Contener y recuperar continuidad</td><td style="padding:8px">Actuar para estabilizar; después observar y orientar</td></tr>
+        </tbody>
+      </table></div>
+      <p style="font-size:12px;color:var(--gris-op);margin-top:8px">*Interpretación: “heurístico” es una forma de resolver bajo incertidumbre, no un dominio equivalente de Cynefin. Etiquetas: HECHO (descripción de dominios según la fuente) / INTERPRETACIÓN (puente entre vocabularios) / HIPÓTESIS (clasificación de cada caso a validar con evidencia).</p>
+    </details>
+    <div id="bloque-e1"></div>
   </section>
 
   <section class="bloque">
@@ -211,6 +227,9 @@
     <h3>Hallazgos — problemas complejos <span style="color:var(--gris);font-weight:400;text-transform:none;font-family:var(--texto-f);font-size:13px">(nadie los ha resuelto ahí antes — va ciclo de experimentos, no una herramienta)</span></h3>
     <div id="inf-complejos"></div>
 
+    <h3>Perfil de contexto E1.1 — hipótesis a validar</h3>
+    <div id="inf-e1"></div>
+
     <h3>Herramientas y programas que podemos implementar</h3>
     <p id="inf-herramientas" style="font-size:14.5px;line-height:1.6;color:var(--gris)"></p>
 
@@ -231,7 +250,7 @@
 <footer class="cierre"><div class="w">
   <h3 style="color:var(--texto);font-size:18px">¿Cómo va quedando?</h3>
   <p>Guarda las notas antes de salir de la reunión — se quedan en este navegador, por cliente.</p>
-  <a class="btn-wa" href="https://wa.me/56946790729?text=Mario%2C%20una%20duda%20del%20diagn%C3%B3stico." target="_blank" rel="noopener">Escribirle a Mario</a>
+  <a class="btn-wa" href="https://wa.me/56978773332?text=Mario%2C%20una%20duda%20del%20diagn%C3%B3stico." target="_blank" rel="noopener">Escribirle a Mario</a>
 </div></footer>
 
 <script>
@@ -291,6 +310,26 @@ const GUION = {
     "¿Quién decide y para cuándo necesitan una propuesta formal?"
   ]
 };
+
+const E1_PREGUNTAS = [
+  {id:"e1_h1", dimension:"Humano", texto:"¿El trabajo se mantiene estable cuando cambia la persona o el equipo que lo ejecuta?"},
+  {id:"e1_h2", dimension:"Humano", texto:"¿Las personas pueden reconocer una desviación y saben qué hacer sin esperar una decisión extraordinaria?"},
+  {id:"e1_h3", dimension:"Humano", texto:"¿El resultado depende de interacciones, coordinación o respuestas humanas que varían entre situaciones?"},
+  {id:"e1_t1", dimension:"Tecnología", texto:"¿La tecnología entrega resultados repetibles bajo condiciones conocidas?"},
+  {id:"e1_t2", dimension:"Tecnología", texto:"¿Para encontrar la causa de una falla hace falta análisis especializado o diagnóstico técnico?"},
+  {id:"e1_t3", dimension:"Tecnología", texto:"¿Las interacciones entre sistemas producen resultados difíciles de anticipar antes de probarlos?"},
+  {id:"e1_m1", dimension:"Método de resolución", texto:"¿La relación entre causa y efecto es evidente y una práctica conocida suele resolverlo?"},
+  {id:"e1_m2", dimension:"Método de resolución", texto:"¿La causa puede descubrirse mediante análisis, datos o conocimiento experto?"},
+  {id:"e1_m3", dimension:"Método de resolución", texto:"¿Conviene probar acciones pequeñas y seguras para aprender qué funciona en este contexto?"},
+  {id:"e1_m4", dimension:"Método de resolución", texto:"¿Hay una urgencia o pérdida de control que exige estabilizar primero y entender después?"}
+];
+
+const DOMINIOS_E1 = [
+  {id:"claro", etiqueta:"Claro · determinista"},
+  {id:"complicado", etiqueta:"Complicado · análisis experto"},
+  {id:"complejo", etiqueta:"Complejo · respuesta heurística / experimentos"},
+  {id:"caotico", etiqueta:"Caótico · estabilizar y observar"}
+];
 
 const EJEMPLO = {
   cliente: "Constructora Ficticia S.A.",
@@ -360,6 +399,14 @@ function renderEstrategico(){
   }).join('');
 }
 
+function renderE1(){
+  const grupos = ["Humano","Tecnología","Método de resolución"];
+  document.getElementById("bloque-e1").innerHTML = grupos.map(dimension => {
+    const preguntas = E1_PREGUNTAS.filter(p => p.dimension === dimension);
+    return `<div style="font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--acento);margin:16px 0 8px">${dimension}</div>` + preguntas.map((p,i) => `<div class="pregunta"><div class="texto">${E1_PREGUNTAS.indexOf(p)+1}. ${p.texto}</div><textarea data-id="${p.id}" placeholder="Evidencia observada: ejemplo, dato o situación..."></textarea><select data-e1id="${p.id}" aria-label="Clasificación E1.1"><option value="">Sin clasificar</option>${DOMINIOS_E1.map(d=>`<option value="${d.id}">${d.etiqueta}</option>`).join("")}</select></div>`).join("");
+  }).join("");
+}
+
 function renderCierre(){
   document.getElementById('bloque-cierre').innerHTML = GUION.cierre.map((texto,i)=>{
     const id = idPregunta('cierre', i);
@@ -388,7 +435,9 @@ function estadoActual(){
   document.querySelectorAll('.chip.activo-complicado,.chip.activo-complejo').forEach(c=>{
     clasif[c.dataset.id] = c.classList.contains('activo-complicado') ? 'complicado' : 'complejo';
   });
-  return { notas, clasif, vertical: document.getElementById('vertical').value };
+  const e1 = {};
+  document.querySelectorAll("select[data-e1id]").forEach(s => { if(s.value) e1[s.dataset.e1id] = s.value; });
+  return { notas, clasif, e1, vertical: document.getElementById('vertical').value };
 }
 
 function actualizarStats(){
@@ -403,9 +452,14 @@ function aplicarEstado(data){
   pintarVerticalInfo();
   document.querySelectorAll('textarea[data-id]').forEach(t => t.value = '');
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('activo-complicado','activo-complejo'));
+  document.querySelectorAll("select[data-e1id]").forEach(s => s.value = "");
   Object.entries(data.notas || {}).forEach(([id, val]) => {
     const ta = document.querySelector(`textarea[data-id="${id}"]`);
     if(ta) ta.value = val;
+  });
+  Object.entries(data.e1 || {}).forEach(([id, dominio]) => {
+    const select = document.querySelector(`select[data-e1id="${id}"]`);
+    if(select) select.value = dominio;
   });
   Object.entries(data.clasif || {}).forEach(([id, tipo]) => {
     const chip = document.querySelector(`.chip[data-id="${id}"][data-tipo="${tipo}"]`);
@@ -453,7 +507,13 @@ function iniciarChips(){
   });
 }
 
+function escaparHTML(valor){
+  return String(valor).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+}
+
 function textoPregunta(id){
+  const e1 = E1_PREGUNTAS.find(p => p.id === id);
+  if(e1) return `[${e1.dimension}] ${e1.texto}`;
   const todas = [
     ...GUION.apertura.map((t,i)=>({id:idPregunta('apertura',i), texto:t})),
     ...GUION.operacional.flatMap((g,gi)=>g.preguntas.map((t,qi)=>({id:idPregunta('op',qi,gi), texto:t}))),
@@ -495,10 +555,26 @@ function generarInforme(){
   const pintaHallazgos = (contenedorId, ids, clase) => {
     const el = document.getElementById(contenedorId);
     if(ids.length === 0){ el.innerHTML = '<p style="color:var(--gris-op);font-size:13.5px">— nada marcado en esta categoría —</p>'; return; }
-    el.innerHTML = ids.map(id => `<div class="hallazgo ${clase}"><span class="tag">${clase}</span><br>${textoPregunta(id)}<br><strong>${notas[id] ? notas[id] : '(sin nota escrita)'}</strong></div>`).join('');
+    el.innerHTML = ids.map(id => `<div class="hallazgo ${clase}"><span class="tag">${clase}</span><br>${escaparHTML(textoPregunta(id))}<br><strong>${notas[id] ? escaparHTML(notas[id]) : '(sin nota escrita)'}</strong></div>`).join('');
   };
   pintaHallazgos('inf-complicados', complicados, 'complicado');
   pintaHallazgos('inf-complejos', complejos, 'complejo');
+
+  const perfilE1 = estadoActual().e1;
+  const porDimension = ["Humano","Tecnología","Método de resolución"].map(dimension => {
+    const seleccionadas = E1_PREGUNTAS.filter(p => p.dimension === dimension && perfilE1[p.id]);
+    const resumen = DOMINIOS_E1.map(d => {
+      const n = seleccionadas.filter(p => perfilE1[p.id] === d.id).length;
+      return n ? `${d.etiqueta}: ${n}` : "";
+    }).filter(Boolean).join(" · ") || "Sin respuestas clasificadas";
+    const notas = estadoActual().notas;
+    const evidencias = seleccionadas.map(p => `<li>${escaparHTML(textoPregunta(p.id))} — ${DOMINIOS_E1.find(d=>d.id===perfilE1[p.id]).etiqueta}${notas[p.id] ? `; evidencia: ${escaparHTML(notas[p.id])}` : ""}</li>`).join("");
+    return `<div class="hallazgo"><strong>${dimension}</strong><br>${resumen}${evidencias ? `<ul style="margin:8px 0 0 18px">${evidencias}</ul>` : ""}</div>`;
+  }).join("");
+  const totalE1 = Object.keys(perfilE1).length;
+  document.getElementById("inf-e1").innerHTML = totalE1
+    ? `<p style="color:var(--gris);font-size:13px;margin-bottom:10px">${totalE1}/10 señales clasificadas. El perfil conserva diferencias entre dimensiones y no fuerza un único cuadrante. Reevalúa si cambian las condiciones o la evidencia.</p>${porDimension}<p style="color:var(--gris-op);font-size:12px;margin-top:8px">Lectura de trabajo: “heurístico” se usa como respuesta de aprendizaje ante señales complejas; la equivalencia es una interpretación para validar, no una categoría original de Cynefin. Referencia conceptual: <a href="https://cynefin.io/wiki/Cynefin_Domains">Cynefin Domains</a>.</p>`
+    : `<p style="color:var(--gris-op);font-size:13.5px">Cuestionario E1.1 pendiente; clasifica señales para comparar las tres dimensiones.</p>`;
 
   document.getElementById('inf-herramientas').textContent =
     `Para ${v.nombre}: ${v.herramienta}. Las alternativas de financiamiento SENCE deben revisarse según elegibilidad y condiciones vigentes antes de cotizar. ` +
@@ -531,6 +607,7 @@ document.getElementById('btn-copiar').addEventListener('click', () => {
   });
 });
 
+renderE1();
 poblarVerticales();
 document.getElementById('cliente').value = EJEMPLO.cliente;
 renderApertura(); renderOperacional(); renderEstrategico(); renderCierre();
